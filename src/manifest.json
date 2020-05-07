@@ -2,12 +2,15 @@
   "name": "Google Meet Transcripts",
   "description": "Record Google Meet Transcripts",
   "version": "1",
+  "icons": {
+    "128": "icon.png"
+  },
   "content_scripts": [{
     "matches": ["https://meet.google.com/*"],
-    "js": ["lib/inject.js"],
+    "js": ["inject.js"],
     "run_at": "document_idle",
     "all_frames": false
   }],
-  "web_accessible_resources": ["lib/stenographer.js"],
+  "web_accessible_resources": ["stenographer.js"],
   "manifest_version": 2
 }
