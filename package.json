@@ -2,10 +2,7 @@
   "name": "google-meet-transcripts",
   "version": "1.0.0",
   "description": "Record Google Meet transcripts",
-  "main": "lib/inject.js",
-  "directories": {
-    "lib": "lib"
-  },
+  "main": "src/inject.js",
   "scripts": {
     "test": "node_modules/.bin/jest"
   },
@@ -13,17 +10,15 @@
     "type": "git",
     "url": "git+https://github.com/dzaman/google-meet-transcripts.git"
   },
-  "author": "Matthew Dzaman",
-  "license": "MIT",
+  "author": "Matthew Dzaman <matthew@dzaman.org>",
+  "license": "GPL-3.0-only",
   "bugs": {
     "url": "https://github.com/dzaman/google-meet-transcripts/issues"
   },
   "homepage": "https://github.com/dzaman/google-meet-transcripts#readme",
   "devDependencies": {
     "jest": "^25.4.0",
-    "jsdom": "^16.2.2"
-  },
-  "dependencies": {
+    "jsdom": "^16.2.2",
     "puppeteer": "^3.0.1"
   }
 }
