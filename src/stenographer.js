@@ -1199,11 +1199,13 @@ try {
       left: 0;
       width: 300px;
       padding: 12px;
-      padding-top: 16px;
+      padding-bottom: 10px;
+      padding-top: 18px;
       background: white;
       border-radius: 0 0 0 8px;
       text-align: left;
       cursor: auto;
+      display: block;
     }
     .__gmt-button:hover > div {
       display: block;
@@ -1220,18 +1222,22 @@ try {
     }
     .__gmt-button > div > ul {
       list-style-type: none;
+      padding: 0px;
       padding-inline-start: 0px;
       padding-inline-end: 0px;
       padding-right: 8px;
       margin-left: 8px;
       margin-right: -8px;
-      margin-bottom: 6px;
+      margin-top: 4px;
+      margin-bottom: 0px;
       max-height: 400px;
       overflow-y: scroll;
     }
     .__gmt-button > div > ul > li {
       line-height: 1em;
       position: relative;
+      margin-top: 12px;
+      margin-bottom: 12px;
     }
     .__gmt-button > div > ul > li > svg.copy {
       cursor: pointer;
@@ -1253,7 +1259,9 @@ try {
     }
     .__gmt-button > div > ul > li > p {
       padding-top:  0px;
+      padding-bottom:  0px;
       margin-top: 5px;
+      margin-bottom: 5px;
       font-size:  .8em;
       color: #9e9e9e;
     }
