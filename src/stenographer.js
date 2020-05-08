@@ -1205,7 +1205,6 @@ try {
       border-radius: 0 0 0 8px;
       text-align: left;
       cursor: auto;
-      display: block;
     }
     .__gmt-button:hover > div {
       display: block;
