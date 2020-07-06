@@ -11,3 +11,11 @@ There are a couple settings available to be read and written in the console by c
 - `transcript-format-session-join`: The string to use to join multiple sessions within a meeting. New sessions are created every time transcribing begins.
 - `transcript-format-speaker`: The format used for individual comments in the transcript.
 - `transcript-format-speaker-join`: The string used to join multiple comments in the transcript.
+
+## Release Process
+
+1. Commit changes
+2. Bump versions in `manifest.json` and `package.json`
+3. Zip `src` directory, place in `dist`
+4. Create release commit with new zip and json configs
+5. Upload to Chrome Web Store
