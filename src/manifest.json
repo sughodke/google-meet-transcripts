@@ -1,7 +1,7 @@
 {
   "name": "Google Meet Transcripts",
   "description": "Record Google Meet Transcripts",
-  "version": "2",
+  "version": "3",
   "icons": {
     "128": "icon.png"
   },
