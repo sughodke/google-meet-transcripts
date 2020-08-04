@@ -6,7 +6,7 @@ try {
   ////////////////////////////////////////////////////////////////////////////
   // Variables
   ////////////////////////////////////////////////////////////////////////////
- 
+
   // DOM node where Google Meet puts its closed captions
   let captionsContainer  = null;
 
@@ -26,6 +26,9 @@ try {
   let currentSessionIndex = null;
   // now isolated to updateCurrentMeetingSession
   // let currentSpeakerIndex = null;
+
+  // set to the interval object, will stop when the transcription starts
+  let transcribeOnBootInterval = null;
 
   // -------------------------------------------------------------------------
   // CACHE is an array of speakers and comments
@@ -57,13 +60,13 @@ try {
   // id of `svg` element of toggle button
   // used to apply the `on` class which alters the fill color of the path
   const ID_TOGGLE_BUTTON = '__gmt-icon';
- 
+
   // List of ids for all recorded hangouts
   const KEY_TRANSCRIPT_IDS = 'hangouts';
 
   // Used to identify when the user is the speaker when listing the meeting participants
   const SEARCH_TEXT_SPEAKER_NAME_YOU = 'You';
- 
+
   // Used to identify when a meeting has no name
   const SEARCH_TEXT_NO_MEETING_NAME = 'Meeting details';
 
@@ -269,7 +272,7 @@ try {
   const getCommonAncestor = (node1, node2) => {
     const parents1 = parents(node1);
     const parents2 = parents(node2);
- 
+
     if (parents1[0] === parents2[0]) {
       for (let i = 0; i < parents1.length; i++) {
         if (parents1[i] !== parents2[i]) {
@@ -423,12 +426,14 @@ try {
         if (item && item.text && item.text.match(/\S/g)) {
           const date = new Date(item.startedAt);
           const minutes = date.getMinutes();
+          const seconds = date.getSeconds();
 
           const name = item.person in SPEAKER_NAME_MAP ? SPEAKER_NAME_MAP[item.person] : item.person;
 
           const text = TRANSCRIPT_FORMAT_SPEAKER
             .replace('$hour$', date.getHours())
             .replace('$minute$', pad(minutes))
+            .replace('$second$', pad(seconds))
             .replace('$name$', name)
             .replace('$text$', item.text);
           speakers.push(text);
@@ -582,7 +587,7 @@ try {
   ////////////////////////////////////////////////////////////////////////////
   // transcript and session identification
   ////////////////////////////////////////////////////////////////////////////
- 
+
   // -------------------------------------------------------------------------
   // Find meeting name from footer
   // -------------------------------------------------------------------------
@@ -982,6 +987,21 @@ try {
     }
   };
 
+
+  // -------------------------------------------------------------------------
+  // Enable transcription when the meet loads
+  // -------------------------------------------------------------------------
+  const transcribeOnBoot = () => {
+    const buttons = findButtonContainer();
+
+    if (buttons) {
+      console.log('[google-meet-transcripts] begin transcription');
+
+      toggleTranscribing();
+      clearInterval(transcribeOnBootInterval);
+    }
+  };
+
   ////////////////////////////////////////////////////////////////////////////
   // DOM Node Creation Utilities
   ////////////////////////////////////////////////////////////////////////////
@@ -1109,7 +1129,7 @@ try {
   };
 
   // -------------------------------------------------------------------------
-  // Make a transcript list item fromm localStorage data
+  // Make a transcript list item from localStorage data
   //
   // NOTE: don't love the tight coupling of display + data access
   // -------------------------------------------------------------------------
@@ -1163,6 +1183,7 @@ try {
 
   console.log(`[google-meet-transcripts] localStorage version`, getOrSet('version', 1, version = LOCALSTORAGE_VERSION));
   setInterval(tryTo(addButtonLoop, 'adding button'), 1000);
+  transcribeOnBootInterval = setInterval(transcribeOnBoot, 1200);
 
   syncSettings();
 
