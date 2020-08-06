@@ -71,7 +71,7 @@ try {
   const SEARCH_TEXT_NO_MEETING_NAME = 'Meeting details';
 
   // Search through this many comments when determining meeting participants
-  const MAX_PARTICIPANT_SEARCH_DEPTH = 100;
+  const MAX_PARTICIPANT_SEARCH_DEPTH = 1000;
 
   // Label given to conversations with no other participants
   const NAME_YOURSELF = 'yourself';
@@ -470,6 +470,7 @@ try {
     const maxSessionIndex = get(makeTranscriptKey(transcriptId));
 
     const nameCounts = {};
+    const spokenDuration = {};
     let count = 0;
     let minTime = null;
 
@@ -485,19 +486,28 @@ try {
 
         count += 1;
 
+        // We want to see our stats too
+        /*
         if (data.person === SEARCH_TEXT_SPEAKER_NAME_YOU) {
           continue;
         }
-
-        if (minTime === null) {
-          minTime = data.startAt;
-        }
+        */
 
         if (!(data.person in nameCounts)) {
           nameCounts[data.person] = 0;
+          spokenDuration[data.person] = 0;
         }
 
         nameCounts[data.person] += 1;
+
+        if (minTime === null) {
+          minTime = new Date(data.startedAt);
+        }
+        spokenDuration[data.person] += Math.abs(new Date(data.endedAt) - minTime);
+        minTime = new Date(data.endedAt);
+
+        // TODO fix duration formula, but this isn't right either
+        // spokenDuration[data.person] += Math.abs(new Date(data.endedAt) - new Date(data.startedAt));
       }
     }
 
@@ -517,6 +527,7 @@ try {
       hasRecords: count > 0,
       people: people.length ? people : [NAME_YOURSELF],
       minTime,
+      spokenDuration,
     };
   };
 
@@ -987,7 +998,6 @@ try {
     }
   };
 
-
   // -------------------------------------------------------------------------
   // Enable transcription when the meet loads
   // -------------------------------------------------------------------------
@@ -1138,6 +1148,7 @@ try {
       hasRecords,
       minTime,
       people,
+      spokenDuration,
     } = getTranscriptDetails(transcriptId);
 
     if (!hasRecords) {
@@ -1147,16 +1158,11 @@ try {
     const li = document.createElement('li');
     li.id = transcriptId;
 
-    let personString;
+    const selectPeople = people
+      .slice(0, 5)
+      .map(name => `${name} ${(spokenDuration[name]/1000/60).toFixed(0)}m`);
 
-    if (people.length === 1) {
-      personString = people[0];
-    } else {
-      const shortList = people.slice(0, 5);
-      const last = shortList.pop();
-
-      personString = `${shortList.join(', ')}, and ${last}`;
-    }
+    const personString = `${selectPeople.join(', ')}`;
 
     const {
       name,
@@ -1164,17 +1170,37 @@ try {
       day,
     } = getTranscriptNameParts(transcriptId);
 
+    const _saveTranscript = tryTo(() => download(transcriptId, getTranscript(transcriptId)), 'saving transcript')
     const _copyTranscript = tryTo(() => navigator.clipboard.writeText(getTranscript(transcriptId)), 'copying transcript');
     const _deleteTranscript = tryTo(() => deleteTranscript(transcriptId), 'deleting transcript');
 
     [
-      makeSvg(SVG_COPY, 10, 12, { onclick: _copyTranscript }),
+      makeSvg(SVG_COPY, 10, 12, { onclick: _saveTranscript }),
       makeElement('span', `${name} on ${month}/${day}`, { onclick: _copyTranscript, className: 'copy' }),
       makeSvg(SVG_TRASH, 18, 20, { onclick: _deleteTranscript, className: 'trash' }),
       makeElement('p', `with ${personString}`),
     ].forEach((el) => li.appendChild(el));
 
     return li;
+  };
+
+  ////////////////////////////////////////////////////////////////////////////
+  // Save as file
+  //
+  // From https://gist.github.com/liabru/11263260#gistcomment-2894088
+  ////////////////////////////////////////////////////////////////////////////
+
+  const download = (filename, text) => {
+    var element = document.createElement('a');
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    element.setAttribute('download', filename);
+
+    element.style.display = 'none';
+    document.body.appendChild(element);
+
+    element.click();
+
+    document.body.removeChild(element);
   };
 
   ////////////////////////////////////////////////////////////////////////////
